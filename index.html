@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Little Todo</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-top: 0;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #addButton {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        .filter-area {
+            margin-top: 20px;
+        }
+
+        .filter-area button {
+            padding: 7px 14px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .filter-area button:hover {
+            background-color: #eee;
+        }
+
+        #taskList {
+            list-style: none;
+            padding: 0;
+            margin-top: 25px;
+        }
+
+        #taskList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .deleteButton {
+            border: none;
+            background-color: #eee;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>my little todo </h2>
+
+        <h1 class="subtitle">
+            Things I need to do!
+        </h1>
+
+        <p>
+            Jangan lupa mas mba tugas-tugas e !!!
+        </p>
+
+        <h3>What needs to be done?</h3>
+
+        <!-- Input + Add -->
+        <div class="input-area">
+            <input type="text" id="taskInput" placeholder="Masukkan task...">
+
+            <button id="addButton">
+                + Add
+            </button>
+        </div>
+
+        <!-- Filter -->
+        <div class="filter-area">
+            <button id="allButton">All</button>
+            <button id="activeButton">Active</button>
+            <button id="completedButton">Completed</button>
+        </div>
+
+        <!-- Daftar Task -->
+        <ul id="taskList">
+
+            <!-- Contoh tampilan task -->
+            <li>
+                <span>Membuat Website to-do list</span>
+                <button class="deleteButton">Delete</button>
+            </li>
+
+            <li>
+                <span>Kerjain Jarkom Modul 2</span>
+                <button class="deleteButton">Delete</button>
+            </li>
+
+            <li>
+                <span>Beli Geprek Mazzeh</span>
+                <button class="deleteButton">Delete</button>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
