@@ -13,24 +13,41 @@ let tasks = [
     }
 ];
 
-let currentFilter = "all"; // "all" | "active" | "completed"
-
-// ==========================================
-// BAGIAN 2: Local Storage / Penyimpanan Data (Nadia)
-// ==========================================
-
-// menyimpan data ke localStorage
+// menyimpan data
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// mengambil data dari localStorage saat halaman dibuka
+// mengambil data
 function loadTasks() {
     const savedTasks = localStorage.getItem("tasks");
 
     if (savedTasks) {
         tasks = JSON.parse(savedTasks);
     }
+}
+
+// menampilkan task
+function renderTasks() {
+
+    const taskList = document.getElementById("taskList");
+
+    taskList.innerHTML = "";
+
+    tasks.forEach((task) => {
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <span>${task.text}</span>
+            <button class="deleteButton">
+                Delete
+            </button>
+        `;
+
+        taskList.appendChild(li);
+
+    });
 }
 
 // ==========================================
@@ -114,21 +131,6 @@ function renderTasks() {
 
     });
 }
-
-// toggle status completed saat checkbox diklik
-function toggleComplete(index) {
-    tasks[index].completed = !tasks[index].completed;
-    saveTasks();
-    renderTasks();
-}
- 
-// event delegation, biar checkbox yang di-render ulang tetap kepasang listenernya
-document.getElementById("taskList").addEventListener("change", (e) => {
-    if (e.target.classList.contains("completeCheckbox")) {
-        const index = e.target.getAttribute("data-index");
-        toggleComplete(index);
-    }
-});
 
 // event delegation buat tombol delete
 document.getElementById("taskList").addEventListener("click", (e) => {
