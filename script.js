@@ -13,18 +13,75 @@ let tasks = [
     }
 ];
 
-// menyimpan data
+let currentFilter = "all"; // "all" | "active" | "completed"
+
+// ==========================================
+// BAGIAN 2: Local Storage / Penyimpanan Data (Nadia)
+// ==========================================
+
+// menyimpan data ke localStorage
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// mengambil data
+// mengambil data dari localStorage saat halaman dibuka
 function loadTasks() {
     const savedTasks = localStorage.getItem("tasks");
 
     if (savedTasks) {
         tasks = JSON.parse(savedTasks);
     }
+}
+
+// ==========================================
+// BAGIAN 3: JavaScript Logic + Filter (Arul)
+// ==========================================
+
+// menambah task baru
+function addTask() {
+    const input = document.getElementById("taskInput");
+    const text = input.value.trim();
+
+    if (text === "") {
+        return;
+    }
+
+    tasks.push({
+        text: text,
+        completed: false
+    });
+
+    saveTasks();
+    renderTasks();
+
+    input.value = "";
+    input.focus();
+}
+
+// menghapus task berdasarkan index
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    saveTasks();
+    renderTasks();
+}
+
+// mengembalikan task yang sudah difilter sesuai currentFilter
+function getFilteredTasks() {
+    if (currentFilter === "active") {
+        return tasks.filter((task) => !task.completed);
+    }
+
+    if (currentFilter === "completed") {
+        return tasks.filter((task) => task.completed);
+    }
+
+    return tasks;
+}
+
+// mengganti filter aktif
+function setFilter(filter) {
+    currentFilter = filter;
+    renderTasks();
 }
 
 // menampilkan task
@@ -34,13 +91,21 @@ function renderTasks() {
 
     taskList.innerHTML = "";
 
-    tasks.forEach((task) => {
+    const filteredTasks = getFilteredTasks();
+
+    filteredTasks.forEach((task) => {
+
+        // cari index asli task ini di array "tasks" (bukan di array hasil filter)
+        const originalIndex = tasks.indexOf(task);
 
         const li = document.createElement("li");
 
         li.innerHTML = `
-            <span>${task.text}</span>
-            <button class="deleteButton">
+            <span style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" class="completeCheckbox" data-index="${originalIndex}" ${task.completed ? "checked" : ""}>
+                <span style="${task.completed ? "text-decoration: line-through; color: #999;" : ""}">${task.text}</span>
+            </span>
+            <button class="deleteButton" data-index="${originalIndex}">
                 Delete
             </button>
         `;
@@ -50,6 +115,43 @@ function renderTasks() {
     });
 }
 
+// toggle status completed saat checkbox diklik
+function toggleComplete(index) {
+    tasks[index].completed = !tasks[index].completed;
+    saveTasks();
+    renderTasks();
+}
+ 
+// event delegation, biar checkbox yang di-render ulang tetap kepasang listenernya
+document.getElementById("taskList").addEventListener("change", (e) => {
+    if (e.target.classList.contains("completeCheckbox")) {
+        const index = e.target.getAttribute("data-index");
+        toggleComplete(index);
+    }
+});
+
+// event delegation buat tombol delete
+document.getElementById("taskList").addEventListener("click", (e) => {
+    if (e.target.classList.contains("deleteButton")) {
+        const index = e.target.getAttribute("data-index");
+        deleteTask(index);
+    }
+});
+
+// tombol Add
+document.getElementById("addButton").addEventListener("click", addTask);
+
+// bisa tambah task pakai Enter di input
+document.getElementById("taskInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        addTask();
+    }
+});
+
+// tombol filter
+document.getElementById("allButton").addEventListener("click", () => setFilter("all"));
+document.getElementById("activeButton").addEventListener("click", () => setFilter("active"));
+document.getElementById("completedButton").addEventListener("click", () => setFilter("completed"));
 
 loadTasks();
 renderTasks();
