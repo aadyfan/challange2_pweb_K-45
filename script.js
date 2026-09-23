@@ -13,6 +13,8 @@ let tasks = [
     }
 ];
 
+let currentFilter = "all";
+
 // menyimpan data
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -22,37 +24,63 @@ function saveTasks() {
 function loadTasks() {
     const savedTasks = localStorage.getItem("tasks");
 
-    if (savedTasks) {
-        tasks = JSON.parse(savedTasks);
+    if (!savedTasks) {
+        return;
     }
+
+    try {
+        const parsedTasks = JSON.parse(savedTasks);
+
+        if (Array.isArray(parsedTasks)) {
+            tasks = parsedTasks;
+        }
+    } catch (error) {
+        console.error("Gagal membaca data task:", error);
+    }
+}
+
+// mengembalikan task yang sudah difilter sesuai currentFilter
+function getFilteredTasks() {
+    if (currentFilter === "active") {
+        return tasks.filter((task) => !task.completed);
+    }
+
+    if (currentFilter === "completed") {
+        return tasks.filter((task) => task.completed);
+    }
+
+    return tasks;
 }
 
 // menampilkan task
 function renderTasks() {
-
     const taskList = document.getElementById("taskList");
+
+    if (!taskList) {
+        return;
+    }
 
     taskList.innerHTML = "";
 
-    tasks.forEach((task) => {
+    const filteredTasks = getFilteredTasks();
 
+    filteredTasks.forEach((task) => {
+        const originalIndex = tasks.indexOf(task);
         const li = document.createElement("li");
 
         li.innerHTML = `
-            <span>${task.text}</span>
-            <button class="deleteButton">
+            <span style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" class="completeCheckbox" data-index="${originalIndex}" ${task.completed ? "checked" : ""}>
+                <span style="${task.completed ? "text-decoration: line-through; color: #999;" : ""}">${task.text}</span>
+            </span>
+            <button class="deleteButton" data-index="${originalIndex}">
                 Delete
             </button>
         `;
 
         taskList.appendChild(li);
-
     });
 }
-
-// ==========================================
-// BAGIAN 3: JavaScript Logic + Filter (Arul)
-// ==========================================
 
 // menambah task baru
 function addTask() {
@@ -77,22 +105,27 @@ function addTask() {
 
 // menghapus task berdasarkan index
 function deleteTask(index) {
-    tasks.splice(index, 1);
+    const taskIndex = Number(index);
+
+    if (Number.isNaN(taskIndex) || taskIndex < 0 || taskIndex >= tasks.length) {
+        return;
+    }
+
+    tasks.splice(taskIndex, 1);
     saveTasks();
     renderTasks();
 }
 
-// mengembalikan task yang sudah difilter sesuai currentFilter
-function getFilteredTasks() {
-    if (currentFilter === "active") {
-        return tasks.filter((task) => !task.completed);
+function toggleTaskComplete(index) {
+    const taskIndex = Number(index);
+
+    if (Number.isNaN(taskIndex) || taskIndex < 0 || taskIndex >= tasks.length) {
+        return;
     }
 
-    if (currentFilter === "completed") {
-        return tasks.filter((task) => task.completed);
-    }
-
-    return tasks;
+    tasks[taskIndex].completed = !tasks[taskIndex].completed;
+    saveTasks();
+    renderTasks();
 }
 
 // mengganti filter aktif
@@ -101,42 +134,21 @@ function setFilter(filter) {
     renderTasks();
 }
 
-// menampilkan task
-function renderTasks() {
-
-    const taskList = document.getElementById("taskList");
-
-    taskList.innerHTML = "";
-
-    const filteredTasks = getFilteredTasks();
-
-    filteredTasks.forEach((task) => {
-
-        // cari index asli task ini di array "tasks" (bukan di array hasil filter)
-        const originalIndex = tasks.indexOf(task);
-
-        const li = document.createElement("li");
-
-        li.innerHTML = `
-            <span style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" class="completeCheckbox" data-index="${originalIndex}" ${task.completed ? "checked" : ""}>
-                <span style="${task.completed ? "text-decoration: line-through; color: #999;" : ""}">${task.text}</span>
-            </span>
-            <button class="deleteButton" data-index="${originalIndex}">
-                Delete
-            </button>
-        `;
-
-        taskList.appendChild(li);
-
-    });
-}
-
 // event delegation buat tombol delete
 document.getElementById("taskList").addEventListener("click", (e) => {
-    if (e.target.classList.contains("deleteButton")) {
-        const index = e.target.getAttribute("data-index");
+    const deleteButton = e.target.closest(".deleteButton");
+
+    if (deleteButton) {
+        const index = deleteButton.getAttribute("data-index");
         deleteTask(index);
+    }
+});
+
+// event delegation buat checkbox complete
+document.getElementById("taskList").addEventListener("change", (e) => {
+    if (e.target.classList.contains("completeCheckbox")) {
+        const index = e.target.getAttribute("data-index");
+        toggleTaskComplete(index);
     }
 });
 
